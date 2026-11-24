@@ -1,0 +1,153 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>수학 탐구 놀이터</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f6fb;
+      color: #26344a;
+    }
+
+    header {
+      background: #244b78;
+      color: white;
+      text-align: center;
+      padding: 42px 20px;
+    }
+
+    header h1 { margin: 0 0 10px; }
+    header p { margin: 0; opacity: .9; }
+
+    main {
+      max-width: 1000px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .grade { margin-bottom: 35px; }
+
+    .apps {
+      display: grid;
+      grid-template-columns:
+        repeat(auto-fit, minmax(230px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: white;
+      padding: 22px;
+      border-radius: 15px;
+      box-shadow: 0 3px 12px #00000010;
+    }
+
+    .card h3 { margin-top: 0; }
+    .card p { color: #667085; font-size: 14px; }
+
+    .card a {
+      display: block;
+      background: #326bb0;
+      color: white;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      text-decoration: none;
+      margin-top: 18px;
+    }
+
+    .card a:hover { background: #1d4f89; }
+
+    footer {
+      text-align: center;
+      color: #888;
+      padding: 30px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>📐 수학 탐구 놀이터</h1>
+    <p>직접 조작하고 탐구하며 수학을 배워 보자!</p>
+  </header>
+
+  <main id="app-list">
+    앱 목록을 불러오는 중입니다.
+  </main>
+
+  <footer>중학교 수학 학습 웹앱</footer>
+
+  <script>
+    async function loadApps() {
+      const container = document.getElementById("app-list");
+
+      try {
+        const response = await fetch("./apps.json");
+
+        if (!response.ok) {
+          throw new Error("앱 목록을 불러오지 못했습니다.");
+        }
+
+        const data = await response.json();
+        container.innerHTML = "";
+
+        ["1학년", "2학년", "3학년"].forEach(grade => {
+          const apps = data.apps.filter(
+            app => app.grade === grade && app.visible === true
+          );
+
+          if (apps.length === 0) return;
+
+          const section = document.createElement("section");
+          section.className = "grade";
+
+          const title = document.createElement("h2");
+          title.textContent = grade;
+          section.appendChild(title);
+
+          const grid = document.createElement("div");
+          grid.className = "apps";
+
+          apps.forEach(app => {
+            const card = document.createElement("article");
+            card.className = "card";
+
+            const name = document.createElement("h3");
+            name.textContent = app.title;
+
+            const description = document.createElement("p");
+            description.textContent = app.description;
+
+            const link = document.createElement("a");
+            link.textContent = "앱 실행하기";
+            link.href = app.url;
+
+            card.append(name, description, link);
+            grid.appendChild(card);
+          });
+
+          section.appendChild(grid);
+          container.appendChild(section);
+        });
+
+        if (!container.children.length) {
+          container.textContent = "현재 공개된 앱이 없습니다.";
+        }
+
+      } catch (error) {
+        container.textContent = "앱 목록을 불러오지 못했습니다.";
+        console.error(error);
+      }
+    }
+
+    loadApps();
+  </script>
+</body>
+</html>
