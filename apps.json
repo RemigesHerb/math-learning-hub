@@ -1,0 +1,59 @@
+
+{
+  "apps": [
+    {
+      "id": "integer",
+      "title": "정수의 덧셈·뺄셈",
+      "grade": "1학년",
+      "unit": "정수와 유리수",
+      "url": "/apps/grade1/integer.html",
+      "visible": true,
+      "battleEnabled": false
+    },
+    {
+      "id": "equation",
+      "title": "일차방정식",
+      "grade": "1학년",
+      "unit": "문자와 식",
+      "url": "/apps/grade1/equation.html",
+      "visible": true,
+      "battleEnabled": true
+    },
+    {
+      "id": "exterior",
+      "title": "다각형의 외각의 합",
+      "grade": "1학년",
+      "unit": "기본 도형",
+      "url": "/apps/grade1/exterior-angle.html",
+      "visible": true,
+      "battleEnabled": false
+    },
+    {
+      "id": "diagonal",
+      "title": "대각선의 개수",
+      "grade": "1학년",
+      "unit": "기본 도형",
+      "url": "/apps/grade1/diagonal.html",
+      "visible": true,
+      "battleEnabled": true
+    },
+    {
+      "id": "triangle",
+      "title": "삼각형의 내각의 합",
+      "grade": "1학년",
+      "unit": "기본 도형",
+      "url": "/apps/grade1/triangle-angle.html",
+      "visible": true,
+      "battleEnabled": false
+    },
+    {
+      "id": "solid",
+      "title": "입체도형의 단면",
+      "grade": "1학년",
+      "unit": "입체도형",
+      "url": "/apps/grade1/solid-section.html",
+      "visible": true,
+      "battleEnabled": false
+    }
+  ]
+}
