@@ -5,8 +5,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>수학 탐구 놀이터</title>
+
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
@@ -22,21 +25,33 @@
       padding: 42px 20px;
     }
 
-    header h1 { margin: 0 0 10px; }
-    header p { margin: 0; opacity: .9; }
+    header h1 {
+      margin: 0 0 10px;
+    }
+
+    header p {
+      margin: 0;
+      opacity: .9;
+    }
 
     main {
       max-width: 1000px;
       margin: 30px auto;
       padding: 0 20px;
+      min-height: 300px;
     }
 
-    .grade { margin-bottom: 35px; }
+    .grade {
+      margin-bottom: 35px;
+    }
+
+    .grade h2 {
+      margin-bottom: 16px;
+    }
 
     .apps {
       display: grid;
-      grid-template-columns:
-        repeat(auto-fit, minmax(230px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
       gap: 16px;
     }
 
@@ -47,8 +62,52 @@
       box-shadow: 0 3px 12px #00000010;
     }
 
-    .card h3 { margin-top: 0; }
-    .card p { color: #667085; font-size: 14px; }
+    .card h3 {
+      margin: 0 0 8px;
+    }
+
+    .subtitle {
+      color: #326bb0;
+      font-size: 14px;
+      margin: 0 0 12px;
+      font-weight: bold;
+    }
+
+    .unit {
+      display: inline-block;
+      background: #edf3fa;
+      color: #326bb0;
+      font-size: 12px;
+      padding: 5px 9px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      color: #667085;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .badge {
+      font-size: 12px;
+      padding: 5px 9px;
+      border-radius: 20px;
+      background: #edf0f4;
+      color: #596579;
+    }
+
+    .badge.battle {
+      background: #e5f2ff;
+      color: #1765a8;
+    }
 
     .card a {
       display: block;
@@ -61,7 +120,20 @@
       margin-top: 18px;
     }
 
-    .card a:hover { background: #1d4f89; }
+    .card a:hover {
+      background: #1d4f89;
+    }
+
+    .card .disabled {
+      display: block;
+      background: #e5e7eb;
+      color: #9299a5;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      margin-top: 18px;
+      font-size: 14px;
+    }
 
     footer {
       text-align: center;
@@ -69,17 +141,24 @@
       padding: 30px;
       font-size: 13px;
     }
+
+    .message {
+      text-align: center;
+      color: #667085;
+      padding: 50px 10px;
+    }
   </style>
 </head>
 
 <body>
+
   <header>
     <h1>📐 수학 탐구 놀이터</h1>
     <p>직접 조작하고 탐구하며 수학을 배워 보자!</p>
   </header>
 
   <main id="app-list">
-    앱 목록을 불러오는 중입니다.
+    <div class="message">앱 목록을 불러오는 중입니다.</div>
   </main>
 
   <footer>중학교 수학 학습 웹앱</footer>
@@ -96,11 +175,18 @@
         }
 
         const data = await response.json();
-        container.innerHTML = "";
 
-        ["1학년", "2학년", "3학년"].forEach(grade => {
-          const apps = data.apps.filter(
-            app => app.grade === grade && app.visible === true
+        if (!data || !Array.isArray(data.apps)) {
+          throw new Error("apps.json 형식이 올바르지 않습니다.");
+        }
+
+        container.replaceChildren();
+
+        const grades = ["1학년", "2학년", "3학년"];
+
+        grades.forEach(grade => {
+          const apps = data.apps.filter(app =>
+            app.grade === grade && app.visible === true
           );
 
           if (apps.length === 0) return;
@@ -119,17 +205,75 @@
             const card = document.createElement("article");
             card.className = "card";
 
+            // 앱 제목
             const name = document.createElement("h3");
-            name.textContent = app.title;
+            name.textContent = app.title || "제목 없음";
 
+            // 부제목
+            const subtitle = document.createElement("div");
+            subtitle.className = "subtitle";
+            subtitle.textContent = app.subtitle || "";
+
+            // 단원
+            const unit = document.createElement("span");
+            unit.className = "unit";
+            unit.textContent = app.unit || "단원 미지정";
+
+            // 설명
             const description = document.createElement("p");
-            description.textContent = app.description;
+            description.textContent = app.description || "";
 
+            // 기능 표시
+            const badges = document.createElement("div");
+            badges.className = "badges";
+
+            const learningBadge = document.createElement("span");
+            learningBadge.className = "badge";
+            learningBadge.textContent = "학습 가능";
+            badges.appendChild(learningBadge);
+
+            if (app.battleEnabled === true) {
+              const battleBadge = document.createElement("span");
+              battleBadge.className = "badge battle";
+              battleBadge.textContent = "대결 가능";
+              badges.appendChild(battleBadge);
+            }
+
+            // 앱 실행 링크
             const link = document.createElement("a");
-            link.textContent = "앱 실행하기";
-            link.href = app.url;
 
-            card.append(name, description, link);
+            const safeUrl = getSafeUrl(app.url);
+
+            if (safeUrl) {
+              link.textContent = "학습하기";
+              link.href = safeUrl;
+              link.target = "_blank";
+              link.rel = "noopener noreferrer";
+            } else {
+              const disabled = document.createElement("span");
+              disabled.className = "disabled";
+              disabled.textContent = "앱 주소 준비 중";
+              card.append(
+                name,
+                subtitle,
+                unit,
+                description,
+                badges,
+                disabled
+              );
+              grid.appendChild(card);
+              return;
+            }
+
+            card.append(
+              name,
+              subtitle,
+              unit,
+              description,
+              badges,
+              link
+            );
+
             grid.appendChild(card);
           });
 
@@ -137,17 +281,49 @@
           container.appendChild(section);
         });
 
-        if (!container.children.length) {
-          container.textContent = "현재 공개된 앱이 없습니다.";
+        if (container.children.length === 0) {
+          container.innerHTML = "";
+          const message = document.createElement("div");
+          message.className = "message";
+          message.textContent = "현재 공개된 앱이 없습니다.";
+          container.appendChild(message);
         }
 
       } catch (error) {
-        container.textContent = "앱 목록을 불러오지 못했습니다.";
         console.error(error);
+
+        container.replaceChildren();
+
+        const message = document.createElement("div");
+        message.className = "message";
+        message.textContent =
+          "앱 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.";
+
+        container.appendChild(message);
+      }
+    }
+
+    // 안전한 앱 주소인지 확인
+    function getSafeUrl(value) {
+      if (typeof value !== "string" || !value.trim()) {
+        return null;
+      }
+
+      try {
+        const url = new URL(value, window.location.href);
+
+        if (url.protocol !== "http:" && url.protocol !== "https:") {
+          return null;
+        }
+
+        return url.href;
+      } catch {
+        return null;
       }
     }
 
     loadApps();
   </script>
+
 </body>
 </html>
